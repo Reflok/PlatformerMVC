@@ -86,6 +86,7 @@ public class GameModel {
 	
 	public void addProjectile(int x, int y, double angle) {
 		projectiles.add(new ProjectileModel(x, y, this, angle));
+		
 	}
 	
 	
