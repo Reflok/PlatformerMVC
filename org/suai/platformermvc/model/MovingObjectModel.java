@@ -1,9 +1,15 @@
 package org.suai.platformermvc.model;
 
 import java.awt.Color;
+import java.awt.Rectangle;
+
+import org.suai.platformermvc.model.states.GameState1;
 
 public abstract class MovingObjectModel {
-	protected GameModel map;
+	protected GameState1 map;
+	
+	protected Rectangle body;
+	protected Rectangle bodyNext;
 	
 	protected double xPos;
 	protected double yPos;
@@ -28,10 +34,10 @@ public abstract class MovingObjectModel {
 	//private boolean jumping;
 	//private boolean falling;
 
-	protected boolean topLeft;
-	protected boolean topRight;
-	protected boolean bottomLeft;
-	protected boolean bottomRight;
+	//protected boolean topLeft;
+	//protected boolean topRight;
+	//protected boolean bottomLeft;
+	//protected boolean bottomRight;
 	
 	protected Color color1;
 	protected Color color2;
@@ -45,10 +51,17 @@ public abstract class MovingObjectModel {
 	int currentRow;
 	int currentCol;
 	
-	public MovingObjectModel(int x, int y, GameModel map) {
-		init(x, y, map);
+	
+	public MovingObjectModel(int x, int y, int width, int height, GameState1 map) {
+		xPos = x;
+		yPos = y;
+		this.width = width;
+		this.height = height;
+		this.map = map;
+		body = new Rectangle((int) xPos, (int) yPos, width, height);
+		init();
 		
-		/*//if in air
+		/*//if in ai
 		falling = true;
 		
 		//position
@@ -75,89 +88,95 @@ public abstract class MovingObjectModel {
 		color2 = new Color(0, 0, 128);*/
 	}
 	
-	public abstract void init (int x, int y, GameModel map);
+	public abstract void init ();
 	
 	public abstract void respondToChangingConditions();
-	
-	public abstract void blockOnLeft();
-	public abstract void blockOnRight();
-	public abstract void blockBelow();
-	public abstract void blockAbove();
+
+	public abstract void onCollision(Rectangle other);
+	//public abstract void blockOnLeft();
+	//public abstract void blockOnRight();
+	//public abstract void blockBelow();
+	//public abstract void blockAbove();
 	
 	public void collisionCheck() {
-		nextX = xPos + shiftX;
-		nextY = yPos + shiftY;
-		
-		tempX = xPos;
-		tempY = yPos;
-		
-		currentRow = map.getRowFromCoord((int) yPos);
-		currentCol = map.getColFromCoord((int) xPos);
-		
-		calculateCorners(xPos, nextY); // check if there will be blocks in next Y position
-		
-		if (shiftY < 0) { // if moving up
-			if (topRight || topLeft) {// if there are blocks above
-				//shiftY = 0; //stop moving up
-				//tempY = currentRow * map.getTileSize() + height / 2; // fix player Y position under block above
+
+		//System.out.println();
+		for (int i = 0;i < map.getBlocksAmount(); i++) {
+			bodyNext = getNextPosRect();
+			body = getRectangle();
+			Rectangle other = (Rectangle) map.getBlock(i);
+			
+			/*double wy = (body.width + other.width) * (body.getCenterY() - other.getCenterY());
+			double hx = (body.height + other.height) * (body.getCenterX() - other.getCenterY());
+			boolean top = false, left = false, right = false, bottom = false;
+			
+			if (wy > hx) {
+				if (wy > -hx) {
+					top = true;
+				} else {
+					left = true;
+				}
+			} else {
+				if (wy > -hx) {
+					right = true;
+				} else {
+					bottom = true;
+				}
+			}*/
+			if (body.intersects(other)) {
+				onCollision(body.intersection(other));
+				break;
+			}
+			if (bodyNext.intersects(other)) {
+				onCollision(body.intersection(other));
+				break;
 				
-				blockAbove();
-			} else {
-				tempY += shiftY;
-			}
-		}
-		
-		if (shiftY > 0) { // if moving down
-			if (bottomLeft || bottomRight) { // if there are blocks below
-				blockBelow();
-			} else {
-				tempY += shiftY; // move
-			}
-		}
-		
-		calculateCorners(nextX, yPos); // check if there will be blocks in next X position
-		
-		if (shiftX < 0) { // if moving left
-			if (topLeft || bottomLeft) { // if there are blocks on the left
-
-				blockOnLeft();
-			} else {
-				tempX += shiftX; // move
-			}
-		}
-		
-		if (shiftX > 0) { // if moving right
-			if (topRight || bottomRight) { // if there are blocks on the right
-
-				blockOnRight();
-			} else {
-				tempX += shiftX; // move
+				/*Rectangle intersection = body.intersection(other);
+				System.out.println(getRectangle());
+				System.out.println(body);
+				System.out.println(other);
+				System.out.println(intersection);
+				if (intersection.x == body.x) {
+					tempX = intersection.x + intersection.width + width / 2; 
+					shiftX = 0;
+				} else if (intersection.x == body.x + width - intersection.width) {
+					tempX =  intersection.x - width / 2;
+					shiftX = 0;
+				}
+				
+				if (intersection.y == body.y + height - intersection.height) {
+					tempY = intersection.y - height / 2; 
+					shiftY = 0;
+				} else if (intersection.y == body.y) {
+					tempY =  intersection.y + intersection.height + height / 2;
+					shiftY = 0;
+				}*/
 			}
 		}
 	}
 	
 	public void update() {
+		tempX = xPos;
+		tempY = yPos;
 		respondToChangingConditions();
-
+		
 		collisionCheck();
 				
 		xPos = tempX;
 		yPos = tempY;
+		body.x = (int) xPos;
+		body.y = (int) yPos;
+	}
+	
+	public Rectangle getRectangle() {
+		return new Rectangle(((int) xPos - width / 2), (int) yPos - height / 2, width, height);
+	}
+	
+	public Rectangle getNextPosRect() {
+		return new Rectangle((int) (xPos - width / 2 + shiftX), (int) (yPos - height / 2 + shiftY), width, height);
 	}
 	
 	
-	protected void calculateCorners(double x, double y) {
-		int leftTile = map.getColFromCoord((int) x - width / 2);
-		int rightTile = map.getColFromCoord(((int) x + width / 2) - 1);
-		int topTile = map.getRowFromCoord((int) y - height / 2);
-		int bottomTile = map.getColFromCoord(((int) y + height / 2) - 1);
-		
-		topLeft = map.getMapData(topTile, leftTile) == 0;
-		bottomLeft = map.getMapData(bottomTile, leftTile) == 0;
-		topRight = map.getMapData(topTile, rightTile) == 0;
-		bottomRight = map.getMapData(bottomTile, rightTile) == 0;
-		
-	}
 	
 	
 	/*public void move() {
@@ -192,8 +211,8 @@ public abstract class MovingObjectModel {
 		
 	
 	//setters
-	public void setX(double x) { xPos = x; }
-	public void setY(double y) { yPos = y; }
+	//public void setX(double x) { xPos = x; }
+	//public void setY(double y) { yPos = y; }
 	public void setShiftX(double speed) { shiftX = speed; }
 	public void setShiftY(double speed) { shiftY = speed; }
 	//public void setMaxMoveSpeed(int maxMoveSpeed) { this.maxMoveSpeed = maxMoveSpeed; }

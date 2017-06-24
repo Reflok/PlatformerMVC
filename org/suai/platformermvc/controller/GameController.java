@@ -6,28 +6,27 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import org.suai.platformermvc.model.GameModel;
-import org.suai.platformermvc.model.PlayerModel;
-import org.suai.platformermvc.model.ProjectileModel;
+import org.suai.platformermvc.model.states.GameStateManager;
 import org.suai.platformermvc.view.GameView;
 
 public class GameController implements KeyListener, MouseListener, MouseMotionListener {
 	private GameView gameView;
-	private GameModel gameModel;
-	private PlayerModel player;
+	//private GameModel gameModel;
+	private GameStateManager gsm;
 	
 	
-	public GameController(GameView gameView, GameModel gameModel){
+	public GameController(GameView gameView, GameStateManager gsm){
 		this.gameView = gameView;
 		gameView.addKeyListener(this);
 		gameView.addMouseListener(this);
-		this.gameModel = gameModel;
-		player = gameModel.getPlayer();
+		//this.gameModel = gameModel;
+		this.gsm = gsm;
+		//player = gameModel.getPlayer();
 	}
 	
 	
 	public void updateGame() {
-		gameModel.update();
+		gsm.update();
 	}
 	
 	
@@ -40,43 +39,15 @@ public class GameController implements KeyListener, MouseListener, MouseMotionLi
 
 	public void keyPressed(KeyEvent e) {
 		int code = e.getKeyCode();
-		
-		/*if (code == KeyEvent.VK_A) {
-			player.setLeft(true);
-		}
-		
-		if (code == KeyEvent.VK_D) {
-			player.setRight(true);
-		}
-		
-		if (code == KeyEvent.VK_W) {
-			player.setJumping(true);
-		}*/
-		player.keyPressed(code);
+		gsm.keyPressed(code);
 		
 	}
 
 
 	public void keyReleased(KeyEvent e) {
 		int code = e.getKeyCode();
-		
-		/*if (code == KeyEvent.VK_A) {
-			player.setLeft(false);
-		}
-		
-		if (code == KeyEvent.VK_D) {
-			player.setRight(false);
-		}
-		
-		if (code == KeyEvent.VK_W) {
-			player.setJumping(false);
-		}*/
-		
-		//if (code == KeyEvent.VK_SPACE) {
-			//gameModel.addProjectile((int) player.getX(),(int) player.getY(), 270);
-		//} else {		
-		player.keyReleased(code); 
-		//}
+			
+		gsm.keyReleased(code); 
 	}
 	
 
@@ -113,11 +84,11 @@ public class GameController implements KeyListener, MouseListener, MouseMotionLi
 	public void mousePressed(MouseEvent e) {
 		int mouseX = e.getX();
 		int mouseY = e.getY();
-		
-		double xLen = player.getX() - mouseX;
-		double yLen = player.getY() - mouseY;
+		gsm.mousePressed(mouseX, mouseY);
+		//double xLen = player.getX() - mouseX;
+		//double yLen = player.getY() - mouseY;
 
-		gameModel.addProjectile((int) player.getX(),(int) player.getY(), (((Math.toDegrees(Math.atan2(yLen, xLen))) + 180)));
+		//gameModel.addProjectile((int) player.getX(),(int) player.getY(), (((Math.toDegrees(Math.atan2(yLen, xLen))) + 180)));
 		
 	}
 

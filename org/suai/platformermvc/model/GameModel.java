@@ -1,4 +1,4 @@
-package org.suai.platformermvc.model;
+/*package org.suai.platformermvc.model;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -90,6 +90,14 @@ public class GameModel {
 	}
 	
 	
+	public void keyPressed(int code) {
+		player.keyPressed(code);
+	}
+	
+	
+	public void keyReleased(int code) {
+		player.keyReleased(code);
+	}
 	//getters
 	public PlayerModel getPlayer() { return player; }
 	public int getMapData(int row, int col){ return mapData[row][col]; }
@@ -107,5 +115,5 @@ public class GameModel {
 	public void setOffsetY(int offset){ yOffset = offset; }
 	public int getColFromCoord(int x) { return x / tileSize; }
 	public int getRowFromCoord(int y) { return y / tileSize; } 
-}
+}*/
 	

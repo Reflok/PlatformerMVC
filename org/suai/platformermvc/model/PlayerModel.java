@@ -1,11 +1,14 @@
 package org.suai.platformermvc.model;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
+import org.suai.platformermvc.model.states.GameState1;
+
 public class PlayerModel extends MovingObjectModel {
-	public PlayerModel(int x, int y, GameModel map) {
-		super(x, y, map);
+	public PlayerModel(int x, int y, int width, int height, GameState1 map) {
+		super(x, y, width, height, map);
 	}
 	//private GameModel map;
 	
@@ -17,7 +20,10 @@ public class PlayerModel extends MovingObjectModel {
 	
 	//private int width;
 	//private int height;
-
+	private boolean topLeft;
+	private boolean topRight;
+	private boolean bottomLeft;
+	private boolean bottomRight;
 	private int health = 1;
 
 	//private double moveSpeed;
@@ -31,7 +37,8 @@ public class PlayerModel extends MovingObjectModel {
 	private boolean right;
 	private boolean jumping;
 	private boolean falling;
-
+	
+	private boolean facingRight;
 	//boolean topLeft;
 	//boolean topRight;
 	//boolean bottomLeft;
@@ -41,27 +48,29 @@ public class PlayerModel extends MovingObjectModel {
 	//private Color color2;
 	
 	
-	public void init(int x, int y, GameModel map) {
-		this.map = map;
-		System.out.println(this.map);
+	public void init() {
+		//this.map = map;
+		
+		
 		//if in air
 		falling = true;
 		
 		//position
-		xPos = x;
-		yPos = y;
+		//xPos = x;
+		//yPos = y;
 		
 		//metrics
-		width = 19;
-		height = 19;
+		
+
+		//body = new Rectangle((int) xPos, (int) yPos, width, height);
 		
 		//speeds
-		moveSpeed = 3;
-		maxMoveSpeed = 8;  
-		maxFallingSpeed = 13;
-		stopSpeed = 0.5;
-		jumpSpeed = -15;
-		gravity = 0.64;
+		moveSpeed = 1.5;
+		maxMoveSpeed = 4;  
+		maxFallingSpeed = 12;
+		stopSpeed = 1;
+		jumpSpeed = -10;
+		gravity = 0.32;
 		
 		//shifts per frame in X and Y directions
 		shiftX = 0;
@@ -72,14 +81,76 @@ public class PlayerModel extends MovingObjectModel {
 	}
 	
 	
-	public void respondToChangingConditions() {
+	public void collisionCheck() {
+		nextX = xPos + shiftX;
+		nextY = yPos + shiftY;
 		
-		if (!falling) {
-			calculateCorners(xPos, yPos + 3); //check ground directly below
-			if (!bottomRight && ! bottomLeft) { // if nothing below
-				falling = true; // set player falling
+		tempX = xPos;
+		tempY = yPos;
+		
+		currentRow = map.getRowFromCoord((int) yPos);
+		currentCol = map.getColFromCoord((int) xPos);
+		
+		calculateCorners(xPos, nextY); // check if there will be blocks in next Y position
+		
+		if (shiftY < 0) { // if moving up
+			if (topRight || topLeft) {// if there are blocks above
+				//shiftY = 0; //stop moving up
+				//tempY = currentRow * map.getTileSize() + height / 2; // fix player Y position under block above
+				blockAbove();
+			} else {
+				tempY += shiftY;
 			}
 		}
+		
+		if (shiftY > 0) { // if moving down
+			if (bottomLeft || bottomRight) { // if there are blocks below
+				blockBelow();
+			} else {
+				tempY += shiftY; // move
+			}
+		}
+		
+		calculateCorners(nextX, yPos); // check if there will be blocks in next X position
+		
+		if (shiftX < 0) { // if moving left
+			if (topLeft || bottomLeft) { // if there are blocks on the left
+
+				blockOnLeft();
+			} else {
+				tempX += shiftX; // move
+			}
+		}
+		
+		if (shiftX > 0) { // if moving right
+			if (topRight || bottomRight) { // if there are blocks on the right
+
+				blockOnRight();
+			} else {
+				tempX += shiftX; // move
+			}
+		}
+	}
+	
+	
+	public void respondToChangingConditions() {
+
+		falling = true;
+		double tmpY = shiftY;
+		double tmpX = shiftX;
+		shiftY = 3;
+		shiftX = 0;
+		body = getNextPosRect();
+		for (int i = 0;i < map.getBlocksAmount(); i++) {
+			Rectangle other = (Rectangle) map.getBlock(i);
+			if (body.intersects(other)) {
+				falling = false;
+				break;
+			}
+		}
+		shiftX = tmpX;
+		shiftY = tmpY;
+		
 		
 		if (left) {
 			shiftX -= moveSpeed;
@@ -109,9 +180,6 @@ public class PlayerModel extends MovingObjectModel {
 			}
 		}
 		
-		if (right && left) {
-			shiftX = 0;
-		}
 		
 		if (jumping && !falling) {
 			shiftY = jumpSpeed;
@@ -128,6 +196,9 @@ public class PlayerModel extends MovingObjectModel {
 			shiftY = 0;
 		}
 		
+		tempY += shiftY;
+		tempX += shiftX;
+		
 		//jumping = false;
 	}
 	
@@ -137,12 +208,26 @@ public class PlayerModel extends MovingObjectModel {
 	}*/
 	
 	
+	protected void calculateCorners(double x, double y) {
+		int leftTile = map.getColFromCoord((int) x - width / 2);
+		int rightTile = map.getColFromCoord(((int) x + width / 2) - 1);
+		int topTile = map.getRowFromCoord((int) y - height / 2);
+		int bottomTile = map.getColFromCoord(((int) y + height / 2) - 1);
+		
+		topLeft = map.getMapData(topTile, leftTile) == 0;
+		bottomLeft = map.getMapData(bottomTile, leftTile) == 0;
+		topRight = map.getMapData(topTile, rightTile) == 0;
+		bottomRight = map.getMapData(bottomTile, rightTile) == 0;
+		
+	}
+	
+	
+	
 	public void setJumping(boolean val) {
 			jumping = val;
 	}
 	
 	
-	@Override
 	public void blockOnLeft() {
 		shiftX = 0; // stop moving
 		tempX = currentCol * map.getTileSize() + width / 2; // fix position
@@ -150,7 +235,6 @@ public class PlayerModel extends MovingObjectModel {
 	}
 
 
-	@Override
 	public void blockOnRight() {
 		shiftX = 0;
 		tempX = (currentCol + 1) * map.getTileSize() - width / 2; // fix position
@@ -158,7 +242,6 @@ public class PlayerModel extends MovingObjectModel {
 	}
 
 
-	@Override
 	public void blockBelow() {
 		shiftY = 0; //stop moving down
 		falling = false; // player must stand on ground
@@ -167,7 +250,6 @@ public class PlayerModel extends MovingObjectModel {
 	}
 
 
-	@Override
 	public void blockAbove() {
 		shiftY = 0; //stop moving up
 		tempY = currentRow * map.getTileSize() + height / 2; // fix player Y position under block above
@@ -177,10 +259,14 @@ public class PlayerModel extends MovingObjectModel {
 	public void keyPressed(int code) {
 		if (code == KeyEvent.VK_A) {
 			left = true;
+			facingRight = false;
+			//right = false;
 		}
 		
 		if (code == KeyEvent.VK_D) {
 			right = true;
+			facingRight = true;
+			//left = false;
 		}
 		
 		if (code == KeyEvent.VK_W) {
@@ -200,8 +286,15 @@ public class PlayerModel extends MovingObjectModel {
 		if (code == KeyEvent.VK_W) {
 			jumping = false;
 		}
+		
+		
 	}
 	
+	@Override
+	public void onCollision(Rectangle intersection) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	//getters
 	//public double getX() { return xPos; }
@@ -218,7 +311,7 @@ public class PlayerModel extends MovingObjectModel {
 	public int getHealth() { return health; }
 	public double getJumpSpeed() { return jumpSpeed; }
 	public boolean getFalling() { return falling; }
-		
+	public boolean getFacingRight() {return facingRight; }
 	
 	//setters
 	//public void setX(double x) { xPos = x; }
@@ -235,6 +328,9 @@ public class PlayerModel extends MovingObjectModel {
 	public void setLeft(boolean val) { left = val; }
 	public void setRight(boolean val) { right = val; }
 	public void setFalling(boolean val) { falling = val; }
+
+
+	
 
 
 	
