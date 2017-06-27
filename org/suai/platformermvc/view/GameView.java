@@ -30,11 +30,7 @@ public class GameView extends JPanel {
 	
 	private static int tileSize;
 	
-	public GameView(GameStateManager gsmr) {
-		this.gsm = gsmr;
-		gameModel = (GameState1) gsm.getState(GameStateManager.GAMESTATE1);
-		player = gameModel.getPlayer();
-		tileSize = gameModel.getTileSize();
+	public GameView() {
 		
 		mainImage = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
 		imageGraphics = (Graphics2D) mainImage.getGraphics();
@@ -57,6 +53,12 @@ public class GameView extends JPanel {
 		requestFocus();
 	}
 	
+	public void setGameStateManager(GameStateManager gsm) {
+		this.gsm = gsm;
+		gameModel = (GameState1) gsm.getState(GameStateManager.GAMESTATE1);
+		player = gameModel.getPlayer();
+		tileSize = gameModel.getTileSize();
+	}
 	
 	public void render() {
 		if (gsm.getCurrentState() == GameStateManager.GAMESTATE1) {
@@ -86,6 +88,12 @@ public class GameView extends JPanel {
 					offsetY + (int) player.getY() - player.getHeight() / 2,
 					player.getWidth(), player.getHeight());
 			
+			//enemies
+			imageGraphics.setColor(Color.RED.darker());
+			for (int i = 0; i < gameModel.enemies.size(); i++) {
+				imageGraphics.fillRect((int) gameModel.enemies.get(i).getX() - 11,(int) gameModel.enemies.get(i).getY() - 11, 22, 22);
+			}
+			
 			//projectiles
 			for (int i = 0; i < gameModel.getProjectilesNum(); i++) {
 				imageGraphics.setColor(Color.RED);
@@ -104,7 +112,8 @@ public class GameView extends JPanel {
 			Color color;
 			String str;
 			int len;
-			
+			imageGraphics.setColor(Color.BLACK);
+			imageGraphics.fillRect(0, 0, windowWidth, windowHeight);
 			imageGraphics.setFont(new Font("Century Gothic", Font.BOLD, 20));
 			
 			for (int i = 0; i< amountOfChoices; i++) {
@@ -147,4 +156,19 @@ public class GameView extends JPanel {
 		panel.drawImage(mainImage, 0, 0 , null);
 		panel.dispose();
 	}
+	
+	
+	public void drawLoadingScreen() {
+		String str = "LOADING";
+		int len = (int) imageGraphics.getFontMetrics().getStringBounds(str, imageGraphics).getWidth();
+
+		//imageGraphics.setColor(Color.WHITE);
+		//imageGraphics.fillRect(0, 0, windowWidth, windowHeight);
+		imageGraphics.setColor(Color.BLACK);
+		imageGraphics.setFont(new Font("Century Gothic", Font.BOLD, 20));
+		imageGraphics.drawString(str, windowWidth / 2 - len / 2, windowHeight / 2);
+		
+		this.getGraphics().drawImage(mainImage, 0, 0, null);
+	}
+	
 }

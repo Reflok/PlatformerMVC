@@ -38,70 +38,40 @@ public class ProjectileModel extends MovingObjectModel {
 			destroy = true;
 			return;
 		}
-		//shiftX = Math.cos(Math.toRadians(angle)) * moveSpeed;
-		//shiftY = Math.sin(Math.toRadians(angle)) * moveSpeed;
-		tempX += shiftX;
-		tempY += shiftY;
 		
 	}
 
-	/*public void blockOnLeft() {
-		//destroy = true;
-		shiftX = -shiftX;
-		tempX = currentCol * map.getTileSize() + width / 2;
-		tempX += shiftX;
+	public void blockOnLeft() {
+		shiftX = 0; // stop moving
+		tempX = currentCol * map.getTileSize() + width; // fix position
+		toDestroy = true;
+		
 	}
+
 
 	public void blockOnRight() {
-		//destroy = true;
-		shiftX = -shiftX;
-		tempX = (currentCol + 1) * map.getTileSize() - width / 2;
-		tempX += shiftX;
+		shiftX = 0;
+		tempX = (currentCol + 1) * map.getTileSize() - width; // fix position
+		toDestroy = true;
 		
 	}
+
 
 	public void blockBelow() {
-		//destroy = true;dw
-		shiftY = -shiftY;
-		tempY = (currentRow + 1) * map.getTileSize()  -  height / 2;
-		tempY += shiftY;
 		
 	}
 
+
 	public void blockAbove() {
-		//destroy = true;
-		shiftY = -shiftY;
-		tempY = currentRow * map.getTileSize() + height / 2;
-		tempY += shiftY;
 		
-	}*/
+	}
 
 		
 	public boolean getDestroy() { return destroy; }
 
 	@Override
 	public void onCollision(Rectangle intersection) {
-		/*if (intersection.x == body.x) {
-			tempX = intersection.x + intersection.width + width / 2; 
-			shiftY = 0;
-			shiftX = 0;
-		} else if (intersection.x == body.x + width - intersection.width) {
-			tempX =  intersection.x - width / 2;
-			shiftY = 0;
-			shiftX = 0;
-		}
 		
-		if (intersection.y == body.y + height - intersection.height) {
-			tempY = intersection.y - height / 2; 
-			shiftY = 0;
-			shiftX = 0;
-		} else if (intersection.y == body.y) {
-			tempY =  intersection.y + intersection.height + height / 2;
-			shiftY = 0;
-			shiftX = 0;
-		}*/
-		destroy = true;
-		//toDestroy = true;
 		
 	}
 }

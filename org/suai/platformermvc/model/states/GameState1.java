@@ -1,15 +1,16 @@
 
 package org.suai.platformermvc.model.states;
 
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+import org.suai.platformermvc.model.Collidable;
+import org.suai.platformermvc.model.EnemyModel;
 import org.suai.platformermvc.model.PlayerModel;
 import org.suai.platformermvc.model.ProjectileModel;
+import org.suai.platformermvc.model.Tile;
 
 
 public class GameState1 implements State {
@@ -17,8 +18,9 @@ public class GameState1 implements State {
 	
 	private GameStateManager gsm;
 	
-	private ArrayList<Rectangle2D> blocks;
+	private ArrayList<Tile> blocks;
 	private ArrayList<ProjectileModel> projectiles;
+	public ArrayList<EnemyModel> enemies;
 	
 	private int[][] mapData;
 	
@@ -30,7 +32,7 @@ public class GameState1 implements State {
 	
 	private int tileSize;
 	
-	private String pathToMap;// = "/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map.txt";
+	private String pathToMap;
 		
 	private boolean canShoot = true;
 
@@ -43,13 +45,14 @@ public class GameState1 implements State {
 	
 	
 	private void init() {
-		//pathToMap = = "/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map.txt";
 		projectiles = new ArrayList<ProjectileModel>();
+		blocks = new ArrayList<Tile>();
+		enemies = new ArrayList<EnemyModel>();
 		
 		try {
-			player = new PlayerModel(70, 70, 20, 20, this);
+			player = new PlayerModel(70, 70, 22, 22, this);
 			
-			blocks = new ArrayList<Rectangle2D>();
+			enemies.add(new EnemyModel(500, 50, 22, 22, this));
 			
 			tileSize = 20;
 			xOffset = 0;
@@ -68,8 +71,7 @@ public class GameState1 implements State {
 				for (int j = 0; j < mapWidth; j++) {
 					mapData[i][j] = Integer.parseInt(tokens[j]);
 					if (mapData[i][j] == 0){
-						//cntr++;
-						blocks.add(new Rectangle(j * tileSize, i * tileSize, tileSize, tileSize));
+						blocks.add(new Tile(j * tileSize, i * tileSize, tileSize, tileSize));
 					}
 				}
 			}
@@ -85,12 +87,14 @@ public class GameState1 implements State {
 	public void update() {
 		//player update
 		player.update();
-		/*for (int i = 0; i < blocks.size(); i++) {
-			System.out.println(blocks.get(i));
-		}*/
+		
 		//projectiles update
 		for (int i = 0; i < projectiles.size(); i++) {
 			projectiles.get(i).update();
+		}
+		
+		for (int i = 0; i < enemies.size(); i++) {
+			enemies.get(i).update();
 		}
 		
 		for (int i = 0; i < projectiles.size(); i++) {
@@ -102,6 +106,12 @@ public class GameState1 implements State {
 		}
 		
 	}
+	
+	
+	public void collision(Collidable obj1, Collidable obj2) {
+		
+	}
+	
 	
 	public ProjectileModel getProjectile(int n) { return projectiles.get(n); }
 	public int getProjectilesNum() { return projectiles.size(); }
@@ -155,8 +165,8 @@ public class GameState1 implements State {
 	public int getRowTile(int x) { return x / tileSize; }
 	public int getColTile(int y) { return y / tileSize; }
 	public int getTileSize() { return tileSize; }
-	public int getBlocksAmount() { return blocks.size(); }
-	public Rectangle2D getBlock(int n) { return blocks.get(n); }
+	public int getTileAmount() { return blocks.size(); }
+	public Tile getTile(int n) { return blocks.get(n); }
 
 	//setter
 	public void setOffsetX(int offset){ xOffset = offset; }

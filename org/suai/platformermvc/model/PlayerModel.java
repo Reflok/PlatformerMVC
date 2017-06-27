@@ -20,10 +20,6 @@ public class PlayerModel extends MovingObjectModel {
 	
 	//private int width;
 	//private int height;
-	private boolean topLeft;
-	private boolean topRight;
-	private boolean bottomLeft;
-	private boolean bottomRight;
 	private int health = 1;
 
 	//private double moveSpeed;
@@ -49,25 +45,13 @@ public class PlayerModel extends MovingObjectModel {
 	
 	
 	public void init() {
-		//this.map = map;
-		
 		
 		//if in air
 		falling = true;
-		
-		//position
-		//xPos = x;
-		//yPos = y;
-		
-		//metrics
-		
 
-		//body = new Rectangle((int) xPos, (int) yPos, width, height);
-		
-		//speeds
 		moveSpeed = 1.5;
 		maxMoveSpeed = 4;  
-		maxFallingSpeed = 12;
+		maxFallingSpeed = 10;
 		stopSpeed = 1;
 		jumpSpeed = -10;
 		gravity = 0.32;
@@ -82,54 +66,7 @@ public class PlayerModel extends MovingObjectModel {
 	
 	
 	public void collisionCheck() {
-		nextX = xPos + shiftX;
-		nextY = yPos + shiftY;
-		
-		tempX = xPos;
-		tempY = yPos;
-		
-		currentRow = map.getRowFromCoord((int) yPos);
-		currentCol = map.getColFromCoord((int) xPos);
-		
-		calculateCorners(xPos, nextY); // check if there will be blocks in next Y position
-		
-		if (shiftY < 0) { // if moving up
-			if (topRight || topLeft) {// if there are blocks above
-				//shiftY = 0; //stop moving up
-				//tempY = currentRow * map.getTileSize() + height / 2; // fix player Y position under block above
-				blockAbove();
-			} else {
-				tempY += shiftY;
-			}
-		}
-		
-		if (shiftY > 0) { // if moving down
-			if (bottomLeft || bottomRight) { // if there are blocks below
-				blockBelow();
-			} else {
-				tempY += shiftY; // move
-			}
-		}
-		
-		calculateCorners(nextX, yPos); // check if there will be blocks in next X position
-		
-		if (shiftX < 0) { // if moving left
-			if (topLeft || bottomLeft) { // if there are blocks on the left
-
-				blockOnLeft();
-			} else {
-				tempX += shiftX; // move
-			}
-		}
-		
-		if (shiftX > 0) { // if moving right
-			if (topRight || bottomRight) { // if there are blocks on the right
-
-				blockOnRight();
-			} else {
-				tempX += shiftX; // move
-			}
-		}
+	
 	}
 	
 	
@@ -138,16 +75,21 @@ public class PlayerModel extends MovingObjectModel {
 		falling = true;
 		double tmpY = shiftY;
 		double tmpX = shiftX;
-		shiftY = 3;
+		shiftY = 1;
 		shiftX = 0;
 		body = getNextPosRect();
-		for (int i = 0;i < map.getBlocksAmount(); i++) {
-			Rectangle other = (Rectangle) map.getBlock(i);
+		calculateCorners(xPos, yPos + 1);
+		if (bottomLeft || bottomRight) {
+			falling = false;
+		}
+		/*for (int i = 0;i < map.getTileAmount(); i++) {
+			Rectangle other = (Rectangle) map.getTile(i).getRectangle();
 			if (body.intersects(other)) {
 				falling = false;
 				break;
 			}
-		}
+		}*/
+		
 		shiftX = tmpX;
 		shiftY = tmpY;
 		
@@ -203,32 +145,13 @@ public class PlayerModel extends MovingObjectModel {
 	}
 	
 	
-	/*public void gotHit(int damage) {
-		health -= damage;
-	}*/
-	
-	
-	protected void calculateCorners(double x, double y) {
-		int leftTile = map.getColFromCoord((int) x - width / 2);
-		int rightTile = map.getColFromCoord(((int) x + width / 2) - 1);
-		int topTile = map.getRowFromCoord((int) y - height / 2);
-		int bottomTile = map.getColFromCoord(((int) y + height / 2) - 1);
-		
-		topLeft = map.getMapData(topTile, leftTile) == 0;
-		bottomLeft = map.getMapData(bottomTile, leftTile) == 0;
-		topRight = map.getMapData(topTile, rightTile) == 0;
-		bottomRight = map.getMapData(bottomTile, rightTile) == 0;
-		
-	}
-	
-	
-	
 	public void setJumping(boolean val) {
 			jumping = val;
 	}
 	
 	
 	public void blockOnLeft() {
+		System.out.println("left");
 		shiftX = 0; // stop moving
 		tempX = currentCol * map.getTileSize() + width / 2; // fix position
 		
@@ -245,6 +168,10 @@ public class PlayerModel extends MovingObjectModel {
 	public void blockBelow() {
 		shiftY = 0; //stop moving down
 		falling = false; // player must stand on ground
+		calculateCorners((int) xPos + shiftX, (int) yPos + shiftY);
+		if (map.getMapData(currentRow + 1, currentCol) != 0 && (bottomLeft || bottomRight)) {
+			currentRow++;
+		}
 		tempY = (currentRow + 1) * map.getTileSize()  -  height / 2; // fix player Y position on block belowd
 		
 	}
