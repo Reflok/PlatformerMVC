@@ -17,8 +17,6 @@ public class GameStateManager {
 		currentState = GameStateManager.MENUSTATE;
 		states.add(new MenuState(this));
 		states.add(new GameState1(this, "/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map.txt"));
-		//states.add(new GameState1());
-		//states.add(new PauseState());
 	}
 
 	

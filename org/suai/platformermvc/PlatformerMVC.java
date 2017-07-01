@@ -14,6 +14,7 @@ public class PlatformerMVC implements Runnable {
 	private static final int millisPerFrame = 1000 / framesPerSec;
 	
 	public PlatformerMVC() {
+		
 		GameView gamePanel = new GameView();
 		gamePanel.drawLoadingScreen();
 		GameStateManager gsm = new GameStateManager();

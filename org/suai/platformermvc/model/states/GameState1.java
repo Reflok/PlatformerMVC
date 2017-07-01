@@ -20,9 +20,11 @@ public class GameState1 implements State {
 	
 	private ArrayList<Tile> blocks;
 	private ArrayList<ProjectileModel> projectiles;
-	public ArrayList<EnemyModel> enemies;
+	private ArrayList<EnemyModel> enemies;
 	
 	private int[][] mapData;
+	
+	private boolean gameOver = false;
 	
 	private int xOffset;
 	private int yOffset;
@@ -52,7 +54,7 @@ public class GameState1 implements State {
 		try {
 			player = new PlayerModel(70, 70, 22, 22, this);
 			
-			enemies.add(new EnemyModel(500, 50, 22, 22, this));
+			
 			
 			tileSize = 20;
 			xOffset = 0;
@@ -74,7 +76,13 @@ public class GameState1 implements State {
 						blocks.add(new Tile(j * tileSize, i * tileSize, tileSize, tileSize));
 					}
 				}
+				
+				
 			}
+			
+			enemies.add(new EnemyModel(500, 50, 22, 22, this));
+			enemies.add(new EnemyModel(600, 50, 22, 22, this));
+			enemies.add(new EnemyModel(700, 50, 22, 22, this));
 			
 			reader.close();
 			
@@ -86,8 +94,15 @@ public class GameState1 implements State {
 	
 	public void update() {
 		//player update
+		if (gameOver) {
+			init();
+			gameOver = false;
+		}
 		player.update();
-		
+		if (player.getHealth() <= 0) {
+			gsm.setState(GameStateManager.MENUSTATE);
+			gameOver = true;
+		}
 		//projectiles update
 		for (int i = 0; i < projectiles.size(); i++) {
 			projectiles.get(i).update();
@@ -105,6 +120,13 @@ public class GameState1 implements State {
 			}
 		}
 		
+		for (int i = 0; i < enemies.size(); i++) {
+			boolean destroy = enemies.get(i).getDestroy();
+			if (destroy) {
+				enemies.remove(i);
+				i--;
+			}
+		}
 	}
 	
 	
@@ -117,10 +139,6 @@ public class GameState1 implements State {
 	public int getProjectilesNum() { return projectiles.size(); }
 	
 	public void mousePressed(int x, int y) {
-		/*double xLen = player.getX() - x;
-		double yLen = player.getY() - y;
-		double angle = Math.toDegrees(Math.atan2(yLen, xLen)) + 180;
-		projectiles.add(new ProjectileModel((int) player.getX(), (int) player.getY(), 4, 4, this, angle));*/
 		
 	}
 	
@@ -167,6 +185,8 @@ public class GameState1 implements State {
 	public int getTileSize() { return tileSize; }
 	public int getTileAmount() { return blocks.size(); }
 	public Tile getTile(int n) { return blocks.get(n); }
+	public int getEnemyNum() { return enemies.size(); }
+	public EnemyModel getEnemy(int i) { return enemies.get(i); }
 
 	//setter
 	public void setOffsetX(int offset){ xOffset = offset; }

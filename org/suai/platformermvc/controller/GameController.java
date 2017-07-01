@@ -11,7 +11,6 @@ import org.suai.platformermvc.view.GameView;
 
 public class GameController implements KeyListener, MouseListener, MouseMotionListener {
 	private GameView gameView;
-	//private GameModel gameModel;
 	private GameStateManager gsm;
 	
 	
@@ -19,9 +18,7 @@ public class GameController implements KeyListener, MouseListener, MouseMotionLi
 		this.gameView = gameView;
 		gameView.addKeyListener(this);
 		gameView.addMouseListener(this);
-		//this.gameModel = gameModel;
 		this.gsm = gsm;
-		//player = gameModel.getPlayer();
 	}
 	
 	
@@ -85,10 +82,6 @@ public class GameController implements KeyListener, MouseListener, MouseMotionLi
 		int mouseX = e.getX();
 		int mouseY = e.getY();
 		gsm.mousePressed(mouseX, mouseY);
-		//double xLen = player.getX() - mouseX;
-		//double yLen = player.getY() - mouseY;
-
-		//gameModel.addProjectile((int) player.getX(),(int) player.getY(), (((Math.toDegrees(Math.atan2(yLen, xLen))) + 180)));
 		
 	}
 

@@ -1,19 +1,18 @@
 package org.suai.platformermvc.model;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 
 import org.suai.platformermvc.model.states.GameState1;
 
 public class EnemyModel extends MovingObjectModel {
 	private double maxFallingSpeed;
-	private double stopSpeed;
-	private double jumpSpeed;
 	private double gravity;
+	
+	int health;
+	boolean destroy = false;
 	
 	private boolean left;
 	private boolean right;
-	private boolean jumping;
 	private boolean falling;
 	
 	public EnemyModel(int x, int y, int width, int height, GameState1 map) {
@@ -23,12 +22,14 @@ public class EnemyModel extends MovingObjectModel {
 	@Override
 	public void init() {
 		falling = true;
-
+		while (map.getMapData(map.getRowFromCoord((int)yPos + 23), map.getColFromCoord((int) xPos)) != 0) {
+			yPos++;
+		}
+		
+		
 		moveSpeed = 1;
 		maxMoveSpeed = 2;  
 		maxFallingSpeed = 10;
-		stopSpeed = 2;
-		jumpSpeed = -10;
 		gravity = 0.32;
 		
 		right = false;
@@ -38,6 +39,8 @@ public class EnemyModel extends MovingObjectModel {
 		shiftX = 0;
 		shiftY = 0;
 		
+		health = 3;
+		
 		color1 = new Color(128, 0, 0);
 		color2 = new Color(0, 0, 128);
 		
@@ -45,6 +48,11 @@ public class EnemyModel extends MovingObjectModel {
 
 	@Override
 	public void respondToChangingConditions() {
+		if (health <= 0) {
+			destroy = true;
+			return;
+		}
+		
 		calculateCorners(xPos, yPos + 1);
 		falling = true;
 		
@@ -60,34 +68,7 @@ public class EnemyModel extends MovingObjectModel {
 			right = temp;
 		}
 		
-		/*
-		if (left) {
-			shiftX -= moveSpeed;
-			
-			if(shiftX < -maxMoveSpeed) { 
-				shiftX = -maxMoveSpeed;
-				}
-		} else if (right) {
-			shiftX += moveSpeed;
-			
-			if (shiftX > maxMoveSpeed) { 
-				shiftX = maxMoveSpeed; 
-				}
-		} else {
-			if (shiftX > 0) {
-				shiftX -= stopSpeed;
-				
-				if (shiftX < 0) {
-					shiftX = 0;
-				}
-			} else if (shiftX < 0) {
-				shiftX += stopSpeed;
-				
-				if (shiftX > 0) {
-					shiftX = 0;
-				}
-			}
-		}*/
+		
 		if (right) {
 			shiftX = maxMoveSpeed;
 		} else {
@@ -103,17 +84,14 @@ public class EnemyModel extends MovingObjectModel {
 		} else {
 			shiftY = 0;
 		}
-		System.out.println(shiftX);
-		System.out.println(left);
 		tempY += shiftY;
 		tempX += shiftX;
 	}
 
-	@Override
-	public void onCollision(Rectangle other) {
-		// TODO Auto-generated method stub
-		
+	public void takeDamage(int i) {
+		health -= i;
 	}
+
 
 	@Override
 	public void blockOnLeft() {
@@ -146,4 +124,7 @@ public class EnemyModel extends MovingObjectModel {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
+	public boolean getDestroy() { return destroy; }
 }

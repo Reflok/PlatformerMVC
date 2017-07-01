@@ -1,7 +1,6 @@
 package org.suai.platformermvc.model;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
 import org.suai.platformermvc.model.states.GameState1;
@@ -10,20 +9,8 @@ public class PlayerModel extends MovingObjectModel {
 	public PlayerModel(int x, int y, int width, int height, GameState1 map) {
 		super(x, y, width, height, map);
 	}
-	//private GameModel map;
-	
-	//private double xPos;
-	//private double yPos;
-	
-	//private double shiftX;
-	//private double shiftY;
-	
-	//private int width;
-	//private int height;
-	private int health = 1;
+	private int health = 100;
 
-	//private double moveSpeed;
-	//private double maxMoveSpeed;
 	private double maxFallingSpeed;
 	private double stopSpeed;
 	private double jumpSpeed;
@@ -33,45 +20,74 @@ public class PlayerModel extends MovingObjectModel {
 	private boolean right;
 	private boolean jumping;
 	private boolean falling;
-	
+	private boolean invincible;
 	private boolean facingRight;
-	//boolean topLeft;
-	//boolean topRight;
-	//boolean bottomLeft;
-	//boolean bottomRight;
-	
-	//private Color color1;
-	//private Color color2;
-	
+	private long invincibilityTimer;
+	private long invincibilityTime;
 	
 	public void init() {
 		
 		//if in air
 		falling = true;
-
+		invincible = false;
 		moveSpeed = 1.5;
-		maxMoveSpeed = 4;  
-		maxFallingSpeed = 10;
+		maxMoveSpeed = 3;  
+		maxFallingSpeed = 8;
 		stopSpeed = 1;
 		jumpSpeed = -10;
 		gravity = 0.32;
-		
+		invincibilityTime = 500;
 		//shifts per frame in X and Y directions
 		shiftX = 0;
 		shiftY = 0;
-		
+		invincibilityTimer = 0;
 		color1 = new Color(128, 0, 0);
 		color2 = new Color(0, 0, 128);
 	}
 	
 	
 	public void collisionCheck() {
-	
+		for (int i = 0; i < map.getEnemyNum(); i++) {
+			EnemyModel enemy = map.getEnemy(i);
+			if (getRectangle().intersects(enemy.getRectangle()) && !invincible){ 
+				invincibilityTimer = System.currentTimeMillis();
+				
+				health--;
+				int pushBack = 15;
+				
+				if (xPos < enemy.getX()) {
+					pushBack = -15;
+				} else if (xPos ==  enemy.getX()) {
+					shiftX = 0;
+				}
+				shiftX = pushBack;
+				
+				pushBack = 15;
+				if (yPos < enemy.getY()) {
+					pushBack = 0;
+				} else if(yPos == enemy.getY()) {
+					pushBack = 0;
+				}
+				
+				shiftY = pushBack;
+				left = false;
+				right = false;
+				
+				return;
+			}
+		}
 	}
 	
 	
 	public void respondToChangingConditions() {
-
+		collisionCheck();
+		invincible = System.currentTimeMillis() - invincibilityTimer < invincibilityTime;
+		
+		if (health <= 0) {
+			
+			return;
+		}
+		
 		falling = true;
 		double tmpY = shiftY;
 		double tmpX = shiftX;
@@ -82,13 +98,6 @@ public class PlayerModel extends MovingObjectModel {
 		if (bottomLeft || bottomRight) {
 			falling = false;
 		}
-		/*for (int i = 0;i < map.getTileAmount(); i++) {
-			Rectangle other = (Rectangle) map.getTile(i).getRectangle();
-			if (body.intersects(other)) {
-				falling = false;
-				break;
-			}
-		}*/
 		
 		shiftX = tmpX;
 		shiftY = tmpY;
@@ -151,7 +160,6 @@ public class PlayerModel extends MovingObjectModel {
 	
 	
 	public void blockOnLeft() {
-		System.out.println("left");
 		shiftX = 0; // stop moving
 		tempX = currentCol * map.getTileSize() + width / 2; // fix position
 		
@@ -184,12 +192,13 @@ public class PlayerModel extends MovingObjectModel {
 	}
 	
 	public void keyPressed(int code) {
+		calculateCorners(xPos, yPos + 1);
 		if (code == KeyEvent.VK_A) {
 			left = true;
 			facingRight = false;
 			//right = false;
 		}
-		
+			
 		if (code == KeyEvent.VK_D) {
 			right = true;
 			facingRight = true;
@@ -217,22 +226,7 @@ public class PlayerModel extends MovingObjectModel {
 		
 	}
 	
-	@Override
-	public void onCollision(Rectangle intersection) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	//getters
-	//public double getX() { return xPos; }
-	//public double getY() { return yPos; }
-	//public double getShiftX() { return shiftX; }
-	//public double getShiftY() { return shiftY; }
-	//public double getMaxMoveSpeed() { return maxMoveSpeed; }
-	//public int getWidth() { return width; }
-	//public int getHeight() { return height; }
-	//public Color getColor1() { return color1; }
-	//public Color getColor2() { return color2; }
+
 	public boolean getLeft() { return left; }
 	public boolean getRight() { return right; }
 	public int getHealth() { return health; }
@@ -240,27 +234,10 @@ public class PlayerModel extends MovingObjectModel {
 	public boolean getFalling() { return falling; }
 	public boolean getFacingRight() {return facingRight; }
 	
-	//setters
-	//public void setX(double x) { xPos = x; }
-	//public void setY(double y) { yPos = y; }
-	//public void setShiftX(double speed) { shiftX = speed; }
-	//public void setShiftY(double speed) { shiftY = speed; }
-	//public void setMaxMoveSpeed(int maxMoveSpeed) { this.maxMoveSpeed = maxMoveSpeed; }
-	//public void setWidth(int val) { width = val; }
-	//public void setHeight(int val) { height = val; }
-	//public void setColor1(Color color) { color1 = color; }
-	//public void setColor2(Color color) { color2 = color; }
 	public void setHealth(int hp) { health = hp;}
 	public void setJumpSpeed(int val) { jumpSpeed = val; }
 	public void setLeft(boolean val) { left = val; }
 	public void setRight(boolean val) { right = val; }
 	public void setFalling(boolean val) { falling = val; }
-
-
-	
-
-
-	
-	
 
 }

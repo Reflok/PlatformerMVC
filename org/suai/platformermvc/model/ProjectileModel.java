@@ -1,7 +1,5 @@
 package org.suai.platformermvc.model;
 
-import java.awt.Rectangle;
-
 import org.suai.platformermvc.model.states.GameState1;
 
 public class ProjectileModel extends MovingObjectModel {
@@ -11,6 +9,8 @@ public class ProjectileModel extends MovingObjectModel {
 	private boolean destroy = false;
 	private boolean toDestroy = false;
 	
+	private int damage;
+	
 	public ProjectileModel(int x, int y, int width, int height, GameState1 map, double direction) {
 		super(x, y, width, height, map);
 		setAngle(direction);
@@ -18,9 +18,9 @@ public class ProjectileModel extends MovingObjectModel {
 
 	@Override
 	public void init() {		
-		moveSpeed = 10;
+		moveSpeed = 7;
 		maxMoveSpeed = 15;  
-		
+		damage = 1;
 
 	}
 
@@ -34,7 +34,8 @@ public class ProjectileModel extends MovingObjectModel {
 	
 	@Override
 	public void respondToChangingConditions() {
-		if (toDestroy) {
+		collisionCheck();
+		if (toDestroy || destroy) {
 			destroy = true;
 			return;
 		}
@@ -69,9 +70,16 @@ public class ProjectileModel extends MovingObjectModel {
 		
 	public boolean getDestroy() { return destroy; }
 
-	@Override
-	public void onCollision(Rectangle intersection) {
-		
-		
+	
+	public void collisionCheck() {
+		for (int i = 0; i < map.getEnemyNum(); i++) {
+			EnemyModel enemy = map.getEnemy(i);
+			if (getRectangle().intersects(enemy.getRectangle())){ 
+				enemy.takeDamage(damage);
+				destroy = true;
+				
+				return;
+			}
+		}
 	}
 }

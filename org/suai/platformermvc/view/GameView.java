@@ -61,6 +61,7 @@ public class GameView extends JPanel {
 	}
 	
 	public void render() {
+		player = gameModel.getPlayer();
 		if (gsm.getCurrentState() == GameStateManager.GAMESTATE1) {
 			//map
 			for (int i = 0; i < gameModel.getMapHeight(); i++) {
@@ -90,13 +91,13 @@ public class GameView extends JPanel {
 			
 			//enemies
 			imageGraphics.setColor(Color.RED.darker());
-			for (int i = 0; i < gameModel.enemies.size(); i++) {
-				imageGraphics.fillRect((int) gameModel.enemies.get(i).getX() - 11,(int) gameModel.enemies.get(i).getY() - 11, 22, 22);
+			for (int i = 0; i < gameModel.getEnemyNum(); i++) {
+				imageGraphics.fillRect((int) gameModel.getEnemy(i).getX() - 11,(int) gameModel.getEnemy(i).getY() - 11, 22, 22);
 			}
 			
 			//projectiles
 			for (int i = 0; i < gameModel.getProjectilesNum(); i++) {
-				imageGraphics.setColor(Color.RED);
+				imageGraphics.setColor(Color.BLACK);
 				int x = (int) gameModel.getProjectile(i).getX();
 				int y = (int) gameModel.getProjectile(i).getY();
 				int r = gameModel.getProjectile(i).getWidth();
@@ -104,8 +105,6 @@ public class GameView extends JPanel {
 			}
 		} else if (gsm.getCurrentState() == GameStateManager.MENUSTATE) {
 			MenuState menuState = (MenuState) gsm.getState(gsm.getCurrentState());
-			//imageGraphics.setColor(Color.LIGHT_GRAY);
-			//imageGraphics.fillRect(0, 0, windowWidth, windowHeight);
 			int currChoice = menuState.getCurrentChoice();
 			int amountOfChoices = menuState.getChoicesNum();
 			
@@ -128,24 +127,7 @@ public class GameView extends JPanel {
 				imageGraphics.setColor(color);
 				imageGraphics.drawString(str, windowWidth / 2 - len / 2, (i + 1) * windowHeight / (amountOfChoices + 1));
 				
-			}
-			
-			/*imageGraphics.setColor(Color.RED);
-			if (menuState.getCurrentChoice() == MenuState.PLAY_CHOICE) {
-				imageGraphics.setColor(Color.GREEN);
-			}
-			String str = "PLAY";
-			int len = (int) imageGraphics.getFontMetrics().getStringBounds(str, imageGraphics).getWidth();
-			imageGraphics.drawString(str, windowWidth / 2 - len / 2, windowHeight / 3);
-			
-			imageGraphics.setColor(Color.RED);
-			if (menuState.getCurrentChoice() == MenuState.EXIT_CHOICE) {
-				imageGraphics.setColor(Color.GREEN);
-			}
-			str = "EXIT";
-			len = (int) imageGraphics.getFontMetrics().getStringBounds(str, imageGraphics).getWidth();
-			imageGraphics.drawString(str, windowWidth / 2 - len / 2, 2 * windowHeight / 3);*/
-			
+			}		
 		}
 		
 	}
@@ -162,8 +144,6 @@ public class GameView extends JPanel {
 		String str = "LOADING";
 		int len = (int) imageGraphics.getFontMetrics().getStringBounds(str, imageGraphics).getWidth();
 
-		//imageGraphics.setColor(Color.WHITE);
-		//imageGraphics.fillRect(0, 0, windowWidth, windowHeight);
 		imageGraphics.setColor(Color.BLACK);
 		imageGraphics.setFont(new Font("Century Gothic", Font.BOLD, 20));
 		imageGraphics.drawString(str, windowWidth / 2 - len / 2, windowHeight / 2);
