@@ -2,14 +2,14 @@ package org.suai.platformermvc.model;
 
 import org.suai.platformermvc.model.states.GameState1;
 
-public class ProjectileModel extends MovingObjectModel {
+public abstract class ProjectileModel extends MovingObjectModel {
 	
-	private double angle;
+	protected double angle;
 	
-	private boolean destroy = false;
-	private boolean toDestroy = false;
+	protected boolean destroy = false;
+	protected boolean toDestroy = false;
 	
-	private int damage;
+	protected int damage;
 	
 	public ProjectileModel(int x, int y, int width, int height, GameState1 map, double direction) {
 		super(x, y, width, height, map);
@@ -18,7 +18,7 @@ public class ProjectileModel extends MovingObjectModel {
 
 	@Override
 	public void init() {		
-		moveSpeed = 7;
+		moveSpeed = 4;
 		maxMoveSpeed = 15;  
 		damage = 1;
 
@@ -70,8 +70,8 @@ public class ProjectileModel extends MovingObjectModel {
 		
 	public boolean getDestroy() { return destroy; }
 
-	
-	public void collisionCheck() {
+	public abstract void collisionCheck();
+	/*public void collisionCheck() {
 		for (int i = 0; i < map.getEnemyNum(); i++) {
 			EnemyModel enemy = map.getEnemy(i);
 			if (getRectangle().intersects(enemy.getRectangle())){ 
@@ -81,5 +81,5 @@ public class ProjectileModel extends MovingObjectModel {
 				return;
 			}
 		}
-	}
+	}*/
 }

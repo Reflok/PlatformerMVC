@@ -8,15 +8,18 @@ public class GameStateManager {
 	
 	public static final int MENUSTATE = 0;
 	public static final int GAMESTATE1 = 1;
-	public static final int GAMESTATE2 = 2;
-	public static final int PAUSESTATE = 3;
+	public static final int PAUSESTATE = 2;
+	public static final int SAVESTATE = 3;
 	
 	
 	public GameStateManager() {
 		states = new ArrayList<State>();
+		
 		currentState = GameStateManager.MENUSTATE;
-		states.add(new MenuState(this));
-		states.add(new GameState1(this, "/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map.txt"));
+		
+		states.add(new MainMenuState(this));
+		states.add(new GameState1(this));
+		states.add(new PauseState(this));
 	}
 
 	
@@ -44,6 +47,7 @@ public class GameStateManager {
 	public int getCurrentState() { return currentState; }
 	
 	public void setState(int n) {
+		
 		currentState = n;
 	}
 	

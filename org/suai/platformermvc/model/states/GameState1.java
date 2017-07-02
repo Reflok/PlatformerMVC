@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.suai.platformermvc.model.Collidable;
 import org.suai.platformermvc.model.EnemyModel;
 import org.suai.platformermvc.model.PlayerModel;
+import org.suai.platformermvc.model.PlayerProjectile;
 import org.suai.platformermvc.model.ProjectileModel;
 import org.suai.platformermvc.model.Tile;
 
@@ -24,29 +25,28 @@ public class GameState1 implements State {
 	
 	private int[][] mapData;
 	
-	private boolean gameOver = false;
-	
 	private int xOffset;
 	private int yOffset;
 	
 	private int mapWidth;
 	private int mapHeight;
-	
+	private int currentLvl = 1;
 	private int tileSize;
 	
 	private String pathToMap;
-		
+	private String[] paths = {"/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map1.txt", 
+			"/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map2.txt"};
 	private boolean canShoot = true;
-
+	private boolean gameOver = false;
 	
-	public GameState1(GameStateManager gsm, String path) {
-		pathToMap = path;
+	public GameState1(GameStateManager gsm) {
+		pathToMap = paths[currentLvl - 1];
 		this.gsm = gsm;
-		init();
+		init(currentLvl);
 	}
 	
 	
-	private void init() {
+	private void init(int level) {
 		projectiles = new ArrayList<ProjectileModel>();
 		blocks = new ArrayList<Tile>();
 		enemies = new ArrayList<EnemyModel>();
@@ -95,11 +95,13 @@ public class GameState1 implements State {
 	public void update() {
 		//player update
 		if (gameOver) {
-			init();
+			init(currentLvl);
 			gameOver = false;
 		}
 		player.update();
+		
 		if (player.getHealth() <= 0) {
+			//reload = true;
 			gsm.setState(GameStateManager.MENUSTATE);
 			gameOver = true;
 		}
@@ -145,7 +147,7 @@ public class GameState1 implements State {
 	
 	public void keyPressed(int code) {
 		if (code == KeyEvent.VK_ESCAPE){
-			gsm.setState(GameStateManager.MENUSTATE);
+			gsm.setState(GameStateManager.PAUSESTATE);
 		}
 		
 		if (code == KeyEvent.VK_SPACE && canShoot) {
@@ -155,7 +157,7 @@ public class GameState1 implements State {
 				angle = 0;
 			}
 			
-			projectiles.add(new ProjectileModel((int) player.getX(), (int) player.getY(), 3, 3, this, angle));
+			projectiles.add(new PlayerProjectile((int) player.getX(), (int) player.getY(), 3, 3, this, angle));
 			
 			canShoot = false;
 		}
@@ -174,8 +176,17 @@ public class GameState1 implements State {
 	
 	
 	//getters
+	public int getMapData(int row, int col){ 
+		if (row >= mapData.length) {
+			return 1;
+		}
+		
+		if (col >= mapData[0].length) {
+			return 1;
+		}
+		return mapData[row][col]; 
+	} 
 	public PlayerModel getPlayer() { return player; }
-	public int getMapData(int row, int col){ return mapData[row][col]; }
 	public int getMapHeight(){ return mapHeight; }
 	public int getMapWidth(){ return mapWidth; }
 	public int getOffsetX(){ return xOffset; }
@@ -193,5 +204,6 @@ public class GameState1 implements State {
 	public void setOffsetY(int offset){ yOffset = offset; }
 	public int getColFromCoord(int x) { return x / tileSize; }
 	public int getRowFromCoord(int y) { return y / tileSize; } 
+	public void addProjectile(ProjectileModel proj) { projectiles.add(proj); }
 }
 	

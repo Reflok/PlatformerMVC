@@ -9,7 +9,7 @@ public class PlayerModel extends MovingObjectModel {
 	public PlayerModel(int x, int y, int width, int height, GameState1 map) {
 		super(x, y, width, height, map);
 	}
-	private int health = 100;
+	private int health;
 
 	private double maxFallingSpeed;
 	private double stopSpeed;
@@ -22,11 +22,12 @@ public class PlayerModel extends MovingObjectModel {
 	private boolean falling;
 	private boolean invincible;
 	private boolean facingRight;
+	
 	private long invincibilityTimer;
 	private long invincibilityTime;
 	
 	public void init() {
-		
+		health = 3;
 		//if in air
 		falling = true;
 		invincible = false;
@@ -50,9 +51,6 @@ public class PlayerModel extends MovingObjectModel {
 		for (int i = 0; i < map.getEnemyNum(); i++) {
 			EnemyModel enemy = map.getEnemy(i);
 			if (getRectangle().intersects(enemy.getRectangle()) && !invincible){ 
-				invincibilityTimer = System.currentTimeMillis();
-				
-				health--;
 				int pushBack = 15;
 				
 				if (xPos < enemy.getX()) {
@@ -60,28 +58,26 @@ public class PlayerModel extends MovingObjectModel {
 				} else if (xPos ==  enemy.getX()) {
 					shiftX = 0;
 				}
-				shiftX = pushBack;
+				int xPush = pushBack;
 				
 				pushBack = 15;
 				if (yPos < enemy.getY()) {
-					pushBack = 0;
+					pushBack = -5;
 				} else if(yPos == enemy.getY()) {
 					pushBack = 0;
 				}
 				
-				shiftY = pushBack;
-				left = false;
-				right = false;
-				
-				return;
+				int yPush = pushBack;
+				takeDamage(1, xPush, yPush);
 			}
 		}
 	}
 	
 	
 	public void respondToChangingConditions() {
-		collisionCheck();
+
 		invincible = System.currentTimeMillis() - invincibilityTimer < invincibilityTime;
+		collisionCheck();
 		
 		if (health <= 0) {
 			
@@ -227,17 +223,30 @@ public class PlayerModel extends MovingObjectModel {
 	}
 	
 
+	public void takeDamage(int damage, int xPush, int yPush) {
+		invincibilityTimer = System.currentTimeMillis();
+		invincible = true;
+		
+		health -= damage;
+		shiftX = xPush;
+		shiftY = yPush;
+		left = false;
+		right = false;
+	}
+	
 	public boolean getLeft() { return left; }
 	public boolean getRight() { return right; }
 	public int getHealth() { return health; }
 	public double getJumpSpeed() { return jumpSpeed; }
 	public boolean getFalling() { return falling; }
-	public boolean getFacingRight() {return facingRight; }
+	public boolean getFacingRight() { return facingRight; }
+	public boolean getInvincible() { return invincible; }
 	
 	public void setHealth(int hp) { health = hp;}
 	public void setJumpSpeed(int val) { jumpSpeed = val; }
 	public void setLeft(boolean val) { left = val; }
 	public void setRight(boolean val) { right = val; }
 	public void setFalling(boolean val) { falling = val; }
+	
 
 }

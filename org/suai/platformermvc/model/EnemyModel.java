@@ -14,7 +14,10 @@ public class EnemyModel extends MovingObjectModel {
 	private boolean left;
 	private boolean right;
 	private boolean falling;
-	
+	private boolean playerInReach = false;
+	private long shootTimer;
+	private long reloadTime = 1000;
+	private boolean canShoot = true;
 	public EnemyModel(int x, int y, int width, int height, GameState1 map) {
 		super(x, y, width, height, map);
 	}
@@ -48,6 +51,33 @@ public class EnemyModel extends MovingObjectModel {
 
 	@Override
 	public void respondToChangingConditions() {
+		if (!canShoot && System.nanoTime() - shootTimer > reloadTime * 1000000) {
+			canShoot =  true;
+		}
+		
+		PlayerModel player = map.getPlayer();
+		if ((yPos > player.getY() - player.getWidth() / 2 && yPos < player.getY() + player.getWidth() / 2)) {
+			if (xPos > player.getX() && left || xPos < player.getX() && right) {
+				playerInReach = true;
+			}
+		} else {
+			playerInReach = false;
+		}
+		
+		if (canShoot && playerInReach) {
+			double angle = 180;
+			
+			if (player.getX() > xPos) {
+				angle = 0;
+			}
+			
+			map.addProjectile(new EnemyProjectile((int) xPos, (int) yPos, 3, 3, map, angle));
+			
+			canShoot = false;
+			shootTimer = System.nanoTime();
+		}
+			
+			
 		if (health <= 0) {
 			destroy = true;
 			return;
@@ -84,8 +114,15 @@ public class EnemyModel extends MovingObjectModel {
 		} else {
 			shiftY = 0;
 		}
+		
+		if (playerInReach) {
+			shiftX = shiftY = 0;
+		}
+		
 		tempY += shiftY;
 		tempX += shiftX;
+		
+
 	}
 
 	public void takeDamage(int i) {
