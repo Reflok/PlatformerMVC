@@ -7,7 +7,14 @@ public class PlayerProjectile extends ProjectileModel {
 	public PlayerProjectile(int x, int y, int width, int height, GameState1 map, double direction) {
 		super(x, y, width, height, map, direction);
 	}
+	
+	
+	@Override
+	public void init() {
 
+		moveSpeed = 15;
+		damage = 1;
+	}
 
 	public void collisionCheck() {
 		for (int i = 0; i < map.getEnemyNum(); i++) {

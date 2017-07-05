@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-import org.suai.platformermvc.model.Collidable;
 import org.suai.platformermvc.model.EnemyModel;
 import org.suai.platformermvc.model.PlayerModel;
 import org.suai.platformermvc.model.PlayerProjectile;
@@ -42,23 +41,23 @@ public class GameState1 implements State {
 	public GameState1(GameStateManager gsm) {
 		pathToMap = paths[currentLvl - 1];
 		this.gsm = gsm;
-		init(currentLvl);
+		init(currentLvl, 70, 70);
 	}
 	
 	
-	private void init(int level) {
+	private void init(int level, int x, int y) {
+		currentLvl = level;
+		pathToMap = paths[level - 1];
 		projectiles = new ArrayList<ProjectileModel>();
 		blocks = new ArrayList<Tile>();
 		enemies = new ArrayList<EnemyModel>();
+		player = new PlayerModel(x, y, 22, 22, this);
+		tileSize = 20;
+		xOffset = 0;
+		yOffset = 0;
 		
 		try {
-			player = new PlayerModel(70, 70, 22, 22, this);
 			
-			
-			
-			tileSize = 20;
-			xOffset = 0;
-			yOffset = 0;
 			BufferedReader reader = new BufferedReader(new FileReader(pathToMap));
 			
 			mapWidth = Integer.parseInt(reader.readLine());
@@ -74,15 +73,13 @@ public class GameState1 implements State {
 					mapData[i][j] = Integer.parseInt(tokens[j]);
 					if (mapData[i][j] == 0){
 						blocks.add(new Tile(j * tileSize, i * tileSize, tileSize, tileSize));
+					} else if (mapData[i][j] == 2) {
+						enemies.add(new EnemyModel(j * tileSize + 11, i * tileSize, 22, 22, this));
 					}
 				}
-				
-				
 			}
 			
-			enemies.add(new EnemyModel(500, 50, 22, 22, this));
-			enemies.add(new EnemyModel(600, 50, 22, 22, this));
-			enemies.add(new EnemyModel(700, 50, 22, 22, this));
+			
 			
 			reader.close();
 			
@@ -94,8 +91,18 @@ public class GameState1 implements State {
 	
 	public void update() {
 		//player update
+		if (player.getX() > tileSize * mapWidth) {
+			init(currentLvl + 1, (int) player.getWidth(), (int)player.getY() );
+			return;
+		}
+		if (player.getX() < 0) {
+			init(currentLvl - 1, tileSize * mapWidth - (int)player.getWidth(), (int)player.getY()) ;
+			return;
+		}
+		
+		
 		if (gameOver) {
-			init(currentLvl);
+			init(1, 70, 70);
 			gameOver = false;
 		}
 		player.update();
@@ -129,11 +136,6 @@ public class GameState1 implements State {
 				i--;
 			}
 		}
-	}
-	
-	
-	public void collision(Collidable obj1, Collidable obj2) {
-		
 	}
 	
 	
@@ -177,13 +179,10 @@ public class GameState1 implements State {
 	
 	//getters
 	public int getMapData(int row, int col){ 
-		if (row >= mapData.length) {
+		if (row >= mapData.length || col >= mapData[0].length || row < 0 || col < 0) {
 			return 1;
 		}
 		
-		if (col >= mapData[0].length) {
-			return 1;
-		}
 		return mapData[row][col]; 
 	} 
 	public PlayerModel getPlayer() { return player; }

@@ -116,7 +116,7 @@ public class EnemyModel extends MovingObjectModel {
 		}
 		
 		if (playerInReach) {
-			shiftX = shiftY = 0;
+			shiftX = 0;
 		}
 		
 		tempY += shiftY;
