@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import org.suai.platformermvc.model.EnemyModel;
 import org.suai.platformermvc.model.PlayerModel;
 import org.suai.platformermvc.model.PlayerProjectile;
@@ -34,20 +36,26 @@ public class GameState1 implements State {
 	
 	private String pathToMap;
 	private String[] paths = {"/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map1.txt", 
-			"/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map2.txt"};
+			"/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map2.txt",
+			"/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/map3.txt"};
 	private boolean canShoot = true;
 	private boolean gameOver = false;
 	
 	public GameState1(GameStateManager gsm) {
 		pathToMap = paths[currentLvl - 1];
 		this.gsm = gsm;
-		init(currentLvl, 70, 70);
+		init(currentLvl, 35, 650);
 	}
 	
 	
-	private void init(int level, int x, int y) {
-		currentLvl = level;
-		pathToMap = paths[level - 1];
+	public void init(int level, int x, int y) {
+		if (level == -1) {
+			pathToMap = "/home/aleph/EclipseProjects/PlatformerMVC/src/org/suai/platformermvc/model/mapHollow.txt";
+		} else {
+			currentLvl = level;
+			pathToMap = paths[level - 1];
+		}
+		
 		projectiles = new ArrayList<ProjectileModel>();
 		blocks = new ArrayList<Tile>();
 		enemies = new ArrayList<EnemyModel>();
@@ -84,7 +92,9 @@ public class GameState1 implements State {
 			reader.close();
 			
 		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Problem with finding map data");
 			e.printStackTrace();
+			System.exit(0);
 		}	
 	}
 	
@@ -197,6 +207,7 @@ public class GameState1 implements State {
 	public Tile getTile(int n) { return blocks.get(n); }
 	public int getEnemyNum() { return enemies.size(); }
 	public EnemyModel getEnemy(int i) { return enemies.get(i); }
+	public int getLvl() { return currentLvl; }
 
 	//setter
 	public void setOffsetX(int offset){ xOffset = offset; }

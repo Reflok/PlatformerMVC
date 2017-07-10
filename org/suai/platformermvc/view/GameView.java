@@ -67,7 +67,8 @@ public class GameView extends JPanel {
 			renderPlayer();
 			renderEnemies();
 			renderProjectiles();
-		} else if (gsm.getCurrentState() == GameStateManager.MENUSTATE || gsm.getCurrentState() == GameStateManager.PAUSESTATE) {
+		//} else if (gsm.getCurrentState() == GameStateManager.MENUSTATE || gsm.getCurrentState() == GameStateManager.PAUSESTATE) {
+		} else if (gsm.getState(gsm.getCurrentState()) instanceof MenuState) {
 			renderMenu();
 		} 
 	}
@@ -132,8 +133,11 @@ public class GameView extends JPanel {
 		Color color;
 		String str;
 		int len;
-		imageGraphics.setColor(Color.BLACK);
-		//imageGraphics.fillRect(0, 0, windowWidth, windowHeight);
+		
+		if (gsm.getCurrentState() != GameStateManager.PAUSESTATE) {
+			imageGraphics.setColor(Color.BLACK);
+			imageGraphics.fillRect(0, 0, windowWidth, windowHeight);
+		}
 		imageGraphics.setFont(new Font("Century Gothic", Font.BOLD, 20));
 		
 		for (int i = 0; i< amountOfChoices; i++) {

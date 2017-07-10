@@ -234,10 +234,10 @@ public class PlayerModel extends MovingObjectModel {
 		right = false;
 	}
 	
-	public boolean getLeft() { return left; }
-	public boolean getRight() { return right; }
+	//public boolean getLeft() { return left; }
+	//public boolean getRight() { return right; }
 	public int getHealth() { return health; }
-	public double getJumpSpeed() { return jumpSpeed; }
+	//public double getJumpSpeed() { return jumpSpeed; }
 	public boolean getFalling() { return falling; }
 	public boolean getFacingRight() { return facingRight; }
 	public boolean getInvincible() { return invincible; }

@@ -9,7 +9,8 @@ public class GameStateManager {
 	public static final int MENUSTATE = 0;
 	public static final int GAMESTATE1 = 1;
 	public static final int PAUSESTATE = 2;
-	public static final int SAVESTATE = 3;
+	public static final int LOADSTATE = 3;
+	public static final int SAVESTATE = 4;
 	
 	
 	public GameStateManager() {
@@ -20,6 +21,8 @@ public class GameStateManager {
 		states.add(new MainMenuState(this));
 		states.add(new GameState1(this));
 		states.add(new PauseState(this));
+		states.add(new LoadState(this));
+		states.add(new SaveState(this));
 	}
 
 	

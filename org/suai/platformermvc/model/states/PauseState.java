@@ -2,29 +2,20 @@ package org.suai.platformermvc.model.states;
 
 import java.awt.event.KeyEvent;
 
-public class PauseState implements MenuState{
+public class PauseState extends MenuState{
 	public static final int CONTINUE_CHOICE = 0;
-	public static final int FILLER_CHOICE = 1;
+	public static final int SAVE_CHOICE = 1;
 	public static final int TO_MAIN_MENU_CHOICE = 2;
 	public static final int EXIT_CHOICE = 3;
 	
-	private String[] choiceText;
-	
-	private int choicesNum;
-	private int currentChoice;
-	
-	GameStateManager gsm;
 	
 	public PauseState(GameStateManager gsm) {
+		super(gsm);
 		
-		currentChoice = 0;
-		choicesNum = 4;
-		this.gsm = gsm;
-		choiceText = new String[choicesNum];
-		choiceText[CONTINUE_CHOICE] = "CONTINUE";
-		choiceText[FILLER_CHOICE] = "FILLER";
-		choiceText[TO_MAIN_MENU_CHOICE] = "MAIN MENU";
-		choiceText[EXIT_CHOICE] = "EXIT";
+		choiceText.add("CONTINUE");
+		choiceText.add("SAVE");
+		choiceText.add("TO MAIN MENU");
+		choiceText.add("EXIT");
 	}
 	
 	
@@ -39,13 +30,13 @@ public class PauseState implements MenuState{
 		if (code == KeyEvent.VK_W) {
 			currentChoice--;
 			if (currentChoice < 0){
-				currentChoice = choicesNum + currentChoice;
+				currentChoice = choiceText.size() + currentChoice;
 			}
 		}
 		
 		if (code == KeyEvent.VK_S) {
 			currentChoice++;
-			currentChoice = currentChoice % choicesNum;
+			currentChoice = currentChoice % choiceText.size();
 			
 		}
 
@@ -55,6 +46,8 @@ public class PauseState implements MenuState{
 				executeContinue();
 			} else if(currentChoice == TO_MAIN_MENU_CHOICE){
 				gsm.setState(GameStateManager.MENUSTATE);
+			} else if(currentChoice == SAVE_CHOICE){
+				gsm.setState(GameStateManager.SAVESTATE);
 			}else if(currentChoice == EXIT_CHOICE){
 				executeExit();
 			}
@@ -65,9 +58,7 @@ public class PauseState implements MenuState{
 		System.exit(0);
 	}
 
-	public int getCurrentChoice() { return currentChoice; }
 
-	public String getChoiceText(int n) { return choiceText[n]; }
 	
 	private void executeContinue() {
 		gsm.setState(GameStateManager.GAMESTATE1);
@@ -87,7 +78,6 @@ public class PauseState implements MenuState{
 	}
 
 
-	public int getChoicesNum() { return choicesNum; }
 
 
 	

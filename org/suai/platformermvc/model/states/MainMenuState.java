@@ -3,27 +3,17 @@ package org.suai.platformermvc.model.states;
 
 import java.awt.event.KeyEvent;
 
-public class MainMenuState implements MenuState {
+public class MainMenuState extends MenuState {
 	public static final int PLAY_CHOICE = 0;
-	public static final int FILLER_CHOICE = 1;
+	public static final int LOAD_CHOICE = 1;
 	public static final int EXIT_CHOICE = 2;
-	;
-	private String[] choiceText;
-	
-	private int choicesNum;
-	private int currentChoice;
-	
-	GameStateManager gsm;
 	
 	public MainMenuState(GameStateManager gsm) {
+		super(gsm);
 		
-		currentChoice = 0;
-		choicesNum = 3;
-		this.gsm = gsm;
-		choiceText = new String[choicesNum];
-		choiceText[PLAY_CHOICE] = "PLAY";
-		choiceText[FILLER_CHOICE] = "FILLER";
-		choiceText[EXIT_CHOICE] = "EXIT";
+		choiceText.add("PLAY");
+		choiceText.add("LOAD");
+		choiceText.add("EXIT");
 	}
 	
 	
@@ -38,13 +28,13 @@ public class MainMenuState implements MenuState {
 		if (code == KeyEvent.VK_W) {
 			currentChoice--;
 			if (currentChoice < 0){
-				currentChoice = choicesNum + currentChoice;
+				currentChoice = choiceText.size() + currentChoice;
 			}
 		}
 		
 		if (code == KeyEvent.VK_S) {
 			currentChoice++;
-			currentChoice = currentChoice % choicesNum;
+			currentChoice = currentChoice % choiceText.size();
 			
 		}
 
@@ -52,22 +42,23 @@ public class MainMenuState implements MenuState {
 		if (code == KeyEvent.VK_ENTER) {
 			if (currentChoice == PLAY_CHOICE) {
 				executePlay();
+			} else if(currentChoice == LOAD_CHOICE){
+				executeLoad();
 			} else if(currentChoice == EXIT_CHOICE){
 				executeExit();
-			}else if(currentChoice == FILLER_CHOICE){
-				
 			}
  		}
 	}
 
+	private void executeLoad() {
+		gsm.setState(GameStateManager.LOADSTATE);
+	}
+	
 	private void executeExit() {
 		System.exit(0);
 		
 	}
 
-	public int getCurrentChoice() { return currentChoice; }
-
-	public String getChoiceText(int n) { return choiceText[n]; }
 	
 	private void executePlay() {
 		gsm.setState(GameStateManager.GAMESTATE1);
@@ -85,11 +76,4 @@ public class MainMenuState implements MenuState {
 		// TODO Auto-generated method stub
 		
 	}
-
-
-	public int getChoicesNum() { return choicesNum; }
-
-
-	
-
 }
